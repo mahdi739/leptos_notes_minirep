@@ -1,0 +1,25 @@
+[package]
+name = "leptos_note"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+leptos = { version = "0.5.2", features = ["csr","nightly"] }
+console_log = "1"
+log = "0.4"
+console_error_panic_hook = "0.1.7"
+chrono = { version = "0.4.31", features = ["serde"] }
+leptos-use = { version = "0.8.1", features = ["storage"] }
+serde = { version = "1.0.192", features = ["derive"] }
+
+[profile.release]
+codegen-units = 1
+opt-level = "z"
+lto = true
+panic = "abort"
+strip = true
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = ["-04"]
+
