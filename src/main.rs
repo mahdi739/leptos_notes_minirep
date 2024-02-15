@@ -20,27 +20,12 @@ pub struct AppModel {}
 impl AppModel {}
 #[component]
 fn App() -> impl IntoView {
-  // let (notes, set_notes) = create_signal(
-  //   web_sys::window()
-  //     .unwrap()
-  //     .local_storage()
-  //     .unwrap()
-  //     .unwrap()
-  //     .get("notes")
-  //     .unwrap()
-  //     .map(|res| serde_json::from_str(&res).unwrap())
-  //     .unwrap_or(Vec::<Note>::new()),
-  // );
-  // create_effect(move |_| {
-  //   web_sys::window().unwrap().local_storage().unwrap().unwrap().set("notes", serde_json::to_string(&notes.get()).unwrap().as_str()).unwrap();
-  // });
-
   let (notes, set_notes, _) = use_local_storage::<Vec<Note>, JsonCodec>("notes");
   let (selected_note, set_selected_note) = create_signal(<Option<Note>>::None);
   if notes.with(|f| f.is_empty() == false) {
     set_selected_note.set(Some(notes.with(|f| f[0])));
   }
-  let add_notes = move |_: MouseEvent| {
+  let add_notes = move |_| {
     set_notes.update(|f| {
       f.insert(0, Note { date: Local::now(), title: create_rw_signal("Title".to_string()), content: create_rw_signal("Content".to_string()) })
     });
