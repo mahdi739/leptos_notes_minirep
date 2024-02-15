@@ -86,12 +86,12 @@ self.addEventListener("fetch", (event) => {
     if (!(event.request.url.startsWith('http'))) {
         return;
     }
-    // event.respondWith(
-    //     cacheFirst({
-    //         request: event.request,
-    //         preloadResponsePromise: event.preloadResponse,
-    //         fallbackUrl: "/",
-    //     }),
-    // );
+    event.respondWith(
+        cacheFirst({
+            request: event.request,
+            preloadResponsePromise: event.preloadResponse,
+            fallbackUrl: "/",
+        }),
+    );
 
 });
