@@ -2,21 +2,14 @@
 <html lang="en">
 
 <head>
+    
     <meta charset="utf-8">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="manifest" href="/manifest/manifest.json" />
     <link data-trunk rel="css" href="/style/style.css" data-integrity="none"/>
-    <link data-trunk rel="copy-dir" href="manifest" data-integrity="none"/>
-    <link data-trunk rel="copy-file" href="service-worker.js" data-integrity="none"/>
     <link data-trunk rel="icon" href="public/favicon.ico" data-integrity="none"/>
 </head>
 
 <body>
 </body>
-<script>
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register("/service-worker.js");
-    }
-</script>
 
 </html>
