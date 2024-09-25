@@ -61,7 +61,7 @@ fn App() -> impl IntoView {
           );
         }
       }
-      state.notes().write().retain(|item| item.date != child.date);
+      state.notes().write().retain(|item| item.date != child.date); // Error!
     }
   };
   let update_selected_note_title = move |event| {
