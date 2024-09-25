@@ -13,7 +13,13 @@ fn main() {
   mount_to_body(App);
 }
 
-#[derive(Store, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Store, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize, Default)]
+pub struct State {
+  #[store(key: DateTime<Local> = |note| note.date)]
+  pub notes: Vec<Note>,
+}
+
+#[derive(Store, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize, Default)]
 pub struct Note {
   pub title: String,
   pub content: String,
@@ -22,31 +28,32 @@ pub struct Note {
 
 #[component]
 fn App() -> impl IntoView {
-  let notes = Store::new(Vec::<Note>::new());
+  let state = Store::new(State::default());
   let selected_note = Store::new(<Option<Note>>::None);
-  if let Some(first_note) = notes.read().first() {
+  if let Some(first_note) = state.notes().read().first() {
     selected_note.set(Some(first_note.to_owned()));
   }
   let add_notes = move |_| {
     let new_note =
       Note { date: Local::now(), title: "Title".to_string(), content: "Content".to_string() };
-    notes.write().insert(0, new_note.clone());
-    console_log(&format!("{:#?}", notes.iter().map(|it| it.date().get()).collect::<Vec<_>>()));
-    console_log(&format!("{:#?}", notes.at(0).get()));
+    state.notes().write().insert(0, new_note.clone());
+    // console_log(&format!("{:#?}", notes.iter().map(|it| it.date().get()).collect::<Vec<_>>()));
+    // console_log(&format!("{:#?}", notes.at(0).get()));
     selected_note.set(Some(new_note));
   };
   let delete_note = move |child: Note| {
     move |event: MouseEvent| {
       event.stop_propagation();
 
-      match notes.read().as_slice() {
+      match state.notes().read().as_slice() {
         [_single_note] => selected_note.set(None),
         [.., before_last_note, last_note] if last_note.date == child.date => {
           selected_note.set(Some(before_last_note.to_owned()))
         }
         _ => {
           selected_note.set(
-            notes
+            state
+              .notes()
               .read()
               .windows(2)
               .find(|window| window[0].date == child.date)
@@ -54,11 +61,12 @@ fn App() -> impl IntoView {
           );
         }
       }
-      notes.write().retain(|item| item.date != child.date);
+      state.notes().write().retain(|item| item.date != child.date);
     }
   };
   let update_selected_note_title = move |event| {
-    notes
+    state
+      .notes()
       .iter()
       .filter(|note| note.read().date == selected_note.unwrap().read().date)
       .next()
@@ -69,7 +77,8 @@ fn App() -> impl IntoView {
     selected_note.unwrap().title().set(event_target_value(&event)) // For Updating the selected item in the list
   };
   let update_selected_note_content = move |event| {
-    notes
+    state
+      .notes()
       .iter()
       .filter(|note| note.read().date == selected_note.unwrap().read().date)
       .next()
@@ -87,7 +96,7 @@ fn App() -> impl IntoView {
           "ADD NEW NOTE"
         </button>
         <ul>
-          <For each=move || notes.iter() key=move |note| note.date().get() let:child>
+          <For each=move || state.notes() key=move |note| note.date().get() let:child>
             <li
               class="note-item new-item"
               class:selected=move || {
@@ -98,7 +107,10 @@ fn App() -> impl IntoView {
                           console_log(&format!("{:#?}", it.date));
                           console_log(&format!("{:#?}", child.read().date));
                           console_log(
-                              &format!("{:#?}", notes.iter().map(|it| it.get()).collect::<Vec<_>>()),
+                              &format!(
+                                  "{:#?}",
+                                  state.notes().iter().map(|it| it.get()).collect::<Vec<_>>(),
+                              ),
                           );
                           it.date == child.read().date
                       })
