@@ -1,7 +1,6 @@
 use chrono::{DateTime, Local};
 use leptos::prelude::*;
-use logging::console_log;
-use reactive_stores::{Store, StoreFieldIterator};
+use reactive_stores::Store;
 use reactive_stores_macro::Store;
 use serde::{Deserialize, Serialize};
 use web_sys::MouseEvent;
@@ -74,7 +73,6 @@ fn App() -> impl IntoView {
                      it.date == child.get().date // 🔴 Error happens here when getting child after removing a note
                    })
               }
-
               on:click=move |_| selected_note.set(Some(child.get()))
             >
               <div class="items">
