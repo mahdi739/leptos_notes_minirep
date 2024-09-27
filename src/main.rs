@@ -71,7 +71,7 @@ fn App() -> impl IntoView {
               class="note-item new-item"
               class:selected=move || {
                   selected_note.get().as_ref().is_some_and(|it| {
-                     it.date == child.get().date // 🔴 Error happens here when getting child
+                     it.date == child.get().date // 🔴 Error happens here when getting child after removing a note
                    })
               }
 
