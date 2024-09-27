@@ -28,12 +28,12 @@ pub struct Note {
 #[component]
 fn App() -> impl IntoView {
   let state = Store::new(State::default());
-  let selected_note = Store::new(<Option<Note>>::None);
+  let selected_note = Store::new(<Option<DateTime<Local>>>::None);
   let add_notes = move |_| {
     let new_note =
       Note { date: Local::now(), title: "Title".to_string(), content: "Content".to_string() };
     state.notes().update(|it| it.insert(0, new_note.clone()));
-    selected_note.set(Some(new_note));
+    selected_note.set(Some(new_note.date));
   };
   let delete_note = move |child: Note| {
     move |event: MouseEvent| {
@@ -41,17 +41,19 @@ fn App() -> impl IntoView {
       match state.notes().get().as_slice() {
         [_single_note] => selected_note.set(None),
         [.., before_last_note, last_note] if last_note.date == child.date => {
-          selected_note.set(Some(before_last_note.to_owned()))
+          selected_note.set(Some(before_last_note.to_owned().date))
         }
         _ => {
-          selected_note.set(
+          selected_note.set(Some(
             state
               .notes()
               .get()
               .windows(2)
               .find(|window| window[0].date == child.date)
-              .map(|window| window[1].to_owned()),
-          );
+              .map(|window| window[1].to_owned())
+              .expect("Coudn't find a good window")
+              .date,
+          ));
         }
       }
       state.notes().update(|it| it.retain(|item| item.date != child.date));
@@ -69,11 +71,9 @@ fn App() -> impl IntoView {
             <li
               class="note-item new-item"
               class:selected=move || {
-                  selected_note.get().as_ref().is_some_and(|it| {
-                     it.date == child.get().date // 🔴 Error happens here when getting child after removing a note
-                   })
+                  selected_note.get().as_ref().is_some_and(|it| { it == &child.get().date })// 🔴 Error happens here when getting child after removing a note
               }
-              on:click=move |_| selected_note.set(Some(child.get()))
+              on:click=move |_| selected_note.set(Some(child.get().date))
             >
               <div class="items">
                 <div class="title">{move || child.title().get()}</div>
@@ -87,3 +87,4 @@ fn App() -> impl IntoView {
     </div>
   }
 }
+
