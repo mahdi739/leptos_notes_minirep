@@ -28,23 +28,23 @@ pub struct Note {
 #[component]
 fn App() -> impl IntoView {
   let state = Store::new(State::default());
-  let selected_note = Store::new(<Option<DateTime<Local>>>::None);
+  let selected_note_date = Store::new(<Option<DateTime<Local>>>::None);
   let add_notes = move |_| {
     let new_note =
       Note { date: Local::now(), title: "Title".to_string(), content: "Content".to_string() };
     state.notes().update(|it| it.insert(0, new_note.clone()));
-    selected_note.set(Some(new_note.date));
+    selected_note_date.set(Some(new_note.date));
   };
   let delete_note = move |child: Note| {
     move |event: MouseEvent| {
       event.stop_propagation();
       match state.notes().get().as_slice() {
-        [_single_note] => selected_note.set(None),
+        [_single_note] => selected_note_date.set(None),
         [.., before_last_note, last_note] if last_note.date == child.date => {
-          selected_note.set(Some(before_last_note.to_owned().date))
+          selected_note_date.set(Some(before_last_note.to_owned().date))
         }
         _ => {
-          selected_note.set(Some(
+          selected_note_date.set(Some(
             state
               .notes()
               .get()
@@ -71,9 +71,9 @@ fn App() -> impl IntoView {
             <li
               class="note-item new-item"
               class:selected=move || {
-                  selected_note.get().as_ref().is_some_and(|it| { it == &child.get().date })// 🔴 Error happens here when getting child after removing a note
+                  selected_note_date.get().as_ref().is_some_and(|it| { it == &child.get().date })// 🔴 Error happens here when getting child after removing a note
               }
-              on:click=move |_| selected_note.set(Some(child.get().date))
+              on:click=move |_| selected_note_date.set(Some(child.get().date))
             >
               <div class="items">
                 <div class="title">{move || child.title().get()}</div>
